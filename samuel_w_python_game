@@ -1,0 +1,502 @@
+#Samuel
+#Oct 9 2024
+#U-boat: The text version
+
+
+import random
+
+#Random 4 digit number generators for merchant ship GRTs
+
+def grt_generator():
+    numbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    four_digits = []
+
+    count = 0
+    for grt in range(4):
+        count = (random.choice(numbers))
+        four_digits.append(count)
+
+    grt_generator.grt_1 = int(four_digits[0] + four_digits[1] + four_digits[2] + four_digits[3])
+
+
+#second number generator
+
+def grt_generator_2():
+    numbers_2 = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    four_digits_2 = []
+
+    count_2 = 0
+    for grt in range(4):
+        count_2 = (random.choice(numbers_2))
+        four_digits_2.append(count_2)
+
+    grt_generator_2.grt_2 = int(four_digits_2[0] + four_digits_2[1] + four_digits_2[2] + four_digits_2[3])
+
+
+#number generator for 5 digits
+
+def captial_ship_t():
+    numbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    five_digits = []
+
+    count = 0
+    for grt in range(5):
+        count = (random.choice(numbers))
+        five_digits.append(count)
+
+    capital_ship = int(five_digits[0] + five_digits[1] + five_digits[2] + five_digits[3] + five_digits[4])
+
+    print(capital_ship)
+
+
+#Input name
+
+name = input("Enter your name: ")
+
+#Beginning of the game, there are 8 different ending, with 1 secret ending. There are also some paths that lead to the same ending.
+
+#First choice
+def sept_1():
+    print("You are " + name + ", captain of submarine U-52. You goal is to sink as many enemy merchant ships as possible. \nHowever, take care to not sink any neutral ones. Your commanding offier approches you with papers regarding your next orders. \nOrder #1 is to head to sector BE3. Order #2 is to head to sector AN1. Which order will you choose?")
+    choice_1 = input("Type 1 for order #1, or 2 for order #2 ")
+    if choice_1 == "1":
+        print("You have chosen to patrol in sector BE3, in the north-east atlantic. The date is September 2, 1939.")
+        be3_sept_7()
+    elif choice_1 == "2":
+        print("You have chosen to patrol in sector AN1, in the north sea. ")
+        an1_sept_7()
+    else:
+        court_martial()
+
+#Court Martial choice
+def court_martial():
+    print("You decide to refuse the orders, saying that war is a vile thing. Your superiors don't like this, and they court martial you. \nYou spend the rest of the war in a concentration camp, barely surviving until liberated by the Allies.")
+    print("You do not participate in the war. Game over.")
+
+
+#BE3 choice
+def be3_sept_7():
+    print("For the first 5 days, you havn't been able to find any merchant ships to sink. BdU has sent a new request, for you to investigate a missing U-Boat. \nWill you accept the request, or not?")
+    choice_be3 = input("Type 1 to accept, or 2 to continue patrolling instead ")
+    if choice_be3 == "1":
+        print("You decide to accept the mission to locate the missing U-boat.")
+        missing_uboat()
+    elif choice_be3 =="2":
+        print("You decide to contine your patrol, hoping to sink some enemy merchant ships.")
+        be3_patrol()
+    else:
+        print("Please input a valid answer.")
+        error_be3()
+
+#Note: Is making error functions for each decision overcomplicated? Yes. Does it work though? Also yes.
+
+#Error BE3
+def error_be3():
+    be3_sept_7()
+#AN1 choice
+def an1_sept_7():
+    print("While on the way to your assigned sector, you receive a transmission from BdU. It's a request for you to sneak into Scapa Flow.")
+    print("It would be a difficult mission as Scapa Flow is the home port of the Royal Navy's Home Fleet. \nHowever, sinking a captial ship will also bring lots of glory to you and your crew.")
+    choice_an1 = input("Will you accept the dangerous mission, or not? (1 for yes, 2 for no)")
+    if choice_an1 == "1":
+        print("You accept the mission.")
+        scapa_flow_start()
+    elif choice_an1 =="2":
+        print("You decline the mission, opting to continue your patrol.")
+        an1_patrol()
+    else:
+        print("Please enter a valid answer")
+        error_an1()
+
+#Error AN1
+def error_an1():
+    an1_sept_7()
+
+#Missing U-boat 1
+
+def missing_uboat():
+    print("You spend 2 whole days searching for the missing U-boat, to no avail. Will you abandon the search and continue your patrol, \nor will you continue the search?")
+    choice_missing_uboat = input("Enter 1 to continue the search, and 2 to call it off. ")
+    if choice_missing_uboat == "1":
+        print("You decide to continue the search a while longer.")
+        continue_search()
+    elif choice_missing_uboat == "2":
+        print("You decide to call of the search and report to BdU, saying the U-boat is sunk.")
+        end_search_early()
+    else:
+        print("Please enter a valid answer")
+        error_missing_uboat()
+
+#Error Missing U-Boat
+def error_missing_uboat():
+    missing_uboat()
+
+#BE3 Continuing the patrol
+
+def be3_patrol():
+    print("As you continue on your patrol, you encounter a convoy. It is escorted by several destroyers.")
+    print("You could either fire your torpedoes now, at a far distance, and hope you get a lucky hit, or wait silently until they approach.")
+    choice_be3_patrol = input("Enter 1 to fire immediately, or 2 to wait until they approach. ")
+    if choice_be3_patrol == "1":
+        print("You decide to fire your torpedoes now.")
+        fire_immediatly()
+    elif choice_be3_patrol == "2":
+        print("You decide to wait until they approach.")
+        wait_convoy()
+    else:
+        print("Please enter a valid answer")
+        be3_patrol_error()
+
+#BE3 Patrol Error
+def be3_patrol_error():
+    be3_patrol()
+
+#Ending search early
+
+def end_search_early():
+    print("As you decide to end the seach early, you return to your patrol. The rest of the patrol is uneventful")
+    print("However, a british plane arrives! This is highly dangerous! Will you try to shoot it down on the surface,\n or try to crash dive to avoid it?")
+    choice_end_search = input("1 to try to shoot it down, or 2 to dive. ")
+    if choice_end_search == "1":
+        print("You decide to attempt to shoot it down.")
+        sunk_by_aircraft()
+    elif choice_end_search == "2":
+        print("You attept to dive as quickly as possible.")
+        sunk_by_aircraft()
+    else:
+        print("Please enter a valid answer")
+        end_search_error()
+
+#End search error
+def end_search_error():
+    end_search_early()
+
+#Fire immediatly
+
+def fire_immediatly():
+    print("You fire your torpedoes as maximum range. Luckily, you score one hit on a merchant. However, the escorts have now called an aircraft over.")
+    print("You sank ")
+    grt_generator()
+    fire_immediatly.ship1 = grt_generator.grt_1
+    print(fire_immediatly.ship1)
+    print("worth of shipping.")
+    sunk_by_aircraft()
+
+#Sunk by aircraft
+
+def sunk_by_aircraft():
+    print("Despite your best efforts, the aircraft closes in.")
+    print("You see the bombs fall down, an eerie scream as they approach.")
+    print("In your short career, you have sunk ")
+    print(fire_immediatly.ship1)
+    print("worth of GRT. \nU-52 is sunk with all hands. Game over.")
+
+#Continue Search
+
+def continue_search():
+    print("You decide to continue the search for the mising submarine for a while longer.")
+    print("You efforts pay off, and you are able to find the sub. There are even a few luck surviors, whom you print aboard.")
+    print("Now, will you decide to take the short, but dangerous route home through the English Channel, or take the longer, \nbut safer route through the Norwegian and North Seas?")
+    continue_choice = input("Input 1 to take the short route, and 2 to take the long route. ")
+    if continue_choice == "1":
+        print("You decide to take your chances with the shorter route.")
+        short_route()
+    elif continue_choice == "2":
+        print("You decide to play it safe, and take the longer route.")
+        long_route()
+    else:
+        print("Please input a valid option.")
+        continue_search()
+
+#Continue search error
+def continue_search_error():
+    continue_search()
+
+#Long route home
+
+def long_route():
+    print("While you are travelling home, you run into a british battlegroup. You take a detour around them, \nbut you run dangerously low on fuel.")
+    print("You no longer have enough fuel to return home to Germany, so you decide to travel as far as you can, \nand send out a distress signal.")
+    print("U-52 is scuttled. All hands survive. Game over.")
+
+#Short route home
+
+def short_route():
+    print("To keep your changes of being detected as low as possible, you stay underwater during the day, and surface only at night.")
+    print("The return home is a harrowing journey, and you have many close calls.")
+    print("You even manage to sink a lone merchant, worth")
+    grt_generator()
+    print(grt_generator.grt_1)
+    print("GRT.")
+    print("You return to your home port, and your crew, and the survivors, are finally able to relax.")
+    print("You have been able to bring your crew back alive. Congradulations, " + name + ".")
+
+
+#Wait for convoy
+def wait_convoy():
+    print("You decide to wait in the path fo the convoy, and you build up a torpedo firing solution.")
+    print("You are able to sink 2 merchant ships, worth")
+    grt_generator()
+    wait_convoy.ship1 = grt_generator.grt_1
+    print(wait_convoy.ship1)
+    grt_generator_2()
+    wait_convoy.ship2 = grt_generator_2.grt_2
+    print(wait_convoy.ship2)    #There are probably easier ways to do this, but it's the only way I could figure out.
+    print("tonnes each. However, the escorts are now aware of your presence.")
+    print("Will you try to avoid them by diving deep and waiting, or will you take your chances, and surface, then run at flank speed?")
+    wait_convoy_choice = input("1 to dive deep and wait, 2 to surface and run at flank speed. ")
+    if wait_convoy_choice == "1":
+        print("You decide to dive deep and wait it out, hoping they don't detect you.")
+        dive_deep()
+    elif wait_convoy_choice == "2":
+        print("You decide to surface, and try to outrun your pursuers.")
+        full_speed()
+    else:
+        print("Please input a valid choice.")
+        wait_convoy_error()
+
+#Wait for convoy error
+def wait_convoy_error():
+    wait_convoy()
+
+#Dive deep
+def dive_deep():
+    print("You dive deep, staying as quiet as you can. While you can hear the escorts pinging you with ASDIC, you are able to avoid their depth charges.")
+    print("After staying silent for a while, they leave, and you surface.")
+    print("You resume your patrol")
+    survive_ending()
+
+#Full speed ahead
+
+def full_speed():
+    print("You decide to surface your submarine, and attempt to outrun the pursuing destroyers.")
+    print("While your Type VIIB U-boat can make 18 knots. A destroyer, however, can average 33-36 knots.")
+    sunk_by_escorts()
+
+#AN1 patrol
+
+def an1_patrol():
+    print("As you continue on your patrol, you encounter a merchant ship flying a neutral flag. While this could a genuine neutral ship, \nbritish ships have been known to fly false flags.")
+    print("The captain of the merchant claims to be heading to the Port of Bergen, but you have suspicions he may be lying.")
+    merchant_choice = input("Enter 1 if you believe he is lying, 2 if you think he is telling the truth. ")
+    if merchant_choice == "1":
+        print("You believe he is lying, and order him to evacuate his ship before you sink it.")
+        sink_neutral()
+    elif merchant_choice == "2":
+        print("You believe his story, and leave him on his way.")
+        leave_neutral()
+    else:
+        print("Please enter a valid option.")
+        an1_patrol_error()
+
+#AN1 patrol error
+def an1_patrol_error():
+    an1_patrol()
+
+#Sinking the merchant ship
+
+def sink_neutral():
+    print("The captain doesn't like this, but he reluctantly obeys.")
+    print("However, as you have been talking, his radio operator has been able to send a message to nearby warships.")
+    print("As the merchant is sinking, your lookout spots their funnel smoke, and you hastily return to you own ship, and attemps to escape them.")
+    sunk_by_escorts()
+
+#Sunk by escorts
+
+def sunk_by_escorts():
+    print("Despite your best efforts, the warships catch up to you.")
+    print("They hit your submarine multiple times with shells, sinking you.")
+    print("Your war is over. You have been sunk. \n You have also sunk")
+    print(wait_convoy.ship1 + wait_convoy.ship2)
+    print("worth of GRT.")
+    print("Game over, " + name)
+
+#Leave neutral ship alone
+
+def leave_neutral():
+    print("As you leave the neutral ship, you have two options. One is to continue on your patrol. The other is to head home now, \nas you've been at sea for over a week.")
+    leave_neutral_choice = input("Enter 1 to continue on your patrol, or 2 to head home early. ")
+    if leave_neutral_choice == "1":
+        print("You decide to continue your patrol, and try to find other ships to sink.")
+        continue_after_neutral()
+    elif leave_neutral_choice == "2":
+        print("You decide to head home now.")
+        head_home_early()
+    else:
+        print("Please input a valid number.")
+        leave_neutral_error()
+
+#Leave neutral ship error
+def leave_neutral_error():
+    leave_neutral()
+
+#Heading home early
+
+def head_home_early():
+    print("Unfortunatly, your patrol turns up fruitless. However, you are sure future ones will be more lucky.")
+    print("Congradulations on surviving a patrol, " + name + ". You sank tonnage worth")
+    print("0")
+    print("GRT.")
+    print("Game over.")
+
+#Continue patrol AN1 2
+
+def continue_after_neutral():
+    print("You decide to continue patroling.")
+    print("After some time, your hydrophone operator reports a contact of another lone ship.")
+    print("While it could be another neutral ship like before, you're feeling more lucky about this one.")
+    sink_straggler()
+
+#Sinking a straggler
+
+def sink_straggler():
+    print("You encounter a ship flying the british flag that seems to have some battle damage on it. You fire a torpedo at it.")
+    print("The torpedo hits the mark, sinking the ship. You sank a ship worth")
+    grt_generator()
+    print(grt_generator.grt_1)
+    print("GRT.")
+    print("Your patrol has been a success, and as you're running low on fuel, you decide to head home.")
+    survive_ending()
+
+#Survive ending
+
+def survive_ending():
+    print("You have had a successful patrol, " + name + ". You have sank two ships worth")
+    print(wait_convoy.ship1 + wait_convoy.ship2)
+    print("of GRT.")
+    print("Congradulations on sinking ships, and most importantly, surviving.")
+    print("Game over. Congradulations.")
+
+#Heading to Scapa Flow
+
+def scapa_flow_start():
+    print("You head to Scapa Flow, where there are two entrances, the East entrance and South entrance. Which one will you take.")
+    scapa_flow_entrance = input("1 to take the East entrance, 2 to take the South entrace. ")
+    if scapa_flow_entrance == "1":
+        print("You decide to take the East entrace.")
+        east_entrance()
+    elif scapa_flow_entrance =="2":
+        print("You decide to take the South entrace.")
+        south_entrance()
+    else:
+        print("Please input a valid answer.")
+        scapa_flow_start_error()
+
+#Scapa Flow start error
+def scapa_flow_start_error():
+    scapa_flow_start()
+
+#South entrance
+
+def south_entrance():
+    print("You decide to take the southern entrace.")
+    print("However, unbeknownst to you and your crew, it was recently heavily mined.")
+    hit_mine()
+
+#East Entrance
+
+def east_entrance():
+    print("You decide to take the eastern entrance. You are barely able to sneak past the anti-submarine nets, and patrolling destroyers.")
+    print("As you reach the heart of Scapa Flow, you spot two ships: A Battleship and an Aircraft Carrier. Which one will you decide to sink?")
+    capital_sinking()
+
+#Choosing which captial ship to sink
+
+def capital_sinking():
+    capital_choice = input("1 to sink the Battleship, 2 to sink the Aircraft Carrier")
+    if capital_choice == "1":
+        capital_sinking.name = str("Battleship")
+        sinking_battleship()
+    elif capital_choice == "2":
+        capital_sinking.name = str("Aircraft Carrier")
+        sink_carrier()      #Probably easier ways to set a variable name inside a function, but again, the only way I know.
+    else:
+        print("Please input a valid number")
+        capital_sinking_error()
+
+#Captial Sinking error
+def capital_sinking_error():
+    capital_sinking()
+
+#Sinking carrier
+
+def sink_carrier():
+    print("You fire all four torpodoes at the Carrier, three of which strike it. The carrier catches fire and start to list heavily.")
+    print("The british are now alerted to your presence. Will you take the south entrance to exit, or the eastern one?")
+    escape1 = input("1 to exit through the southern entrance, 2 for the eastern one. ")
+    if escape1 == "1":
+        print("You try to escape through the southern entrance.")
+        south_exit()
+    elif escape1 == "2":
+        print("You try to escape through the eastern entrace.")
+        east_exit()
+    else:
+        print("Please input a valid number.")
+        sink_carrier_error()
+
+#Sink carrier error
+def sink_carrier_error():
+    sink_carrier()
+
+
+#Sinking battleship
+
+def sinking_battleship():
+    print("You fire all four torpodoes at the Battleship, all of which strike it. The carrier catches fire and start to list heavily.")
+    print("The british are now alerted to your presence. Will you take the south entrance to exit, or the eastern one?")
+    escape1 = input("1 to exit through the southern entrance, 2 for the eastern one. ")
+    if escape1 == "1":
+        print("You try to escape through the southern entrance.")
+        south_exit()
+    elif escape1 == "2":
+        print("You try to escape through the eastern entrace.")
+        east_exit()
+    else:
+        print("Please input a valid number.")
+        sinking_battleship_error()
+
+#Sinking battleship error
+def sinking_battleship_error():
+    sinking_battleship
+
+
+#Southern exit
+
+def south_exit():
+    print("You decide to take the southern entrace. However, unbeknownst to you and your crew, it was recently heavily mined.")
+    hit_mine()
+
+#Hitting a mine
+
+def hit_mine():
+    print("You hit a mine, and despite your best efforts, too much water pours in for your crew to save the ship.")
+    print("You give the order to abandon ship. You and your surviving crew are captured by the british and put in POW camps")
+    print("Your career was short but exciting, sinking a ") 
+    print(capital_sinking.name)
+    print("worth")
+    captial_ship_t()
+    print("tonnes. But your war is over now. \nGame over.")
+
+#Eastern Exit
+
+def east_exit():
+    print("You decide to take the eastern exit. While there are more close calls, as they know you are somewhere.")
+    print("Luckily for you, though, they don't seem to know exactly where. You are able to escape unscathed, and you plot a course home.")
+    return_glory()
+
+#Return home in glory
+
+def return_glory():
+    print("As you pull into port, you see a marching band playing songs, and a large crowd cheering and waving flags. \nYour commanding officer smiles and shakes your hand.")
+    print("He tells you that with your great success, you and your crew have been invited to see the Führer.")
+    print("Hitler himself pins the Knight's Cross of the Iron Cross, one of the highest awards in the military.")
+    print("You have made yourself famous, captain " + name + ". Your name will be written in the history books.")
+    print("You have sunk a ")
+    print(capital_sinking.name)
+    print("worth")
+    captial_ship_t()
+    print("tonnes. For now, you and your crew can take a well deserved break.")
+    print("Game over.")
+
+#Calls the beginning of the game
+sept_1()
