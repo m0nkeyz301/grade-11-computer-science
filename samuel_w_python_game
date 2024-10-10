@@ -53,7 +53,7 @@ def captial_ship_t():
 
 name = input("Enter your name: ")
 
-#Beginning of the game, there are 8 different ending, with 1 secret ending. There are also some paths that lead to the same ending.
+#Beginning of the game, there are 8 different ending, with 1 "secret" ending. There are also some paths that lead to the same ending.
 
 #First choice
 def sept_1():
@@ -71,7 +71,7 @@ def sept_1():
 #Court Martial choice
 def court_martial():
     print("You decide to refuse the orders, saying that war is a vile thing. Your superiors don't like this, and they court martial you. \nYou spend the rest of the war in a concentration camp, barely surviving until liberated by the Allies.")
-    print("You do not participate in the war. Game over.")
+    print("You do not participate in the war. \nGame over.")
 
 
 #BE3 choice
