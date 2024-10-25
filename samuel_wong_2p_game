@@ -1,0 +1,142 @@
+import random
+import time
+
+#Loading screen
+loading = 0
+for i in range(11):
+    time.sleep(0.5)
+    print(f"{loading} %")
+    loading += 10
+print("Loaded!")
+time.sleep(0.5)
+print("Welcome to the game of Nim!")
+
+#Instructions
+
+print("The game of nim is when 2 players take turns removing tokens in different piles")
+time.sleep(2)
+print("Each turn, the player must take one to three tokens ('🪙' symbols representing coins), as long as they are from the same pile.")
+time.sleep(2)
+print("This repeats until a player is forced to take the last token, who loses, and the other player wins.")
+time.sleep(2)
+
+#Random piles generator
+game_piles = [random.randrange(1,10),random.randrange(1,10),random.randrange(1,10)]
+
+#AI functions (Made with help from Pranushan and ChatGPT)
+
+def ai_move(piles):
+    if random.random() < 0.7:
+        return best_move(piles)
+    else:
+        return random_move(piles)
+    
+def best_move(piles):
+    nim_sum = 0
+    for pile in piles:
+        nim_sum ^= pile
+
+    if nim_sum == 0:
+        return random_move(piles)
+
+    for i,pile in enumerate(piles):
+        if pile ^ nim_sum < pile:
+            return i, min(10,pile - (pile ^ nim_sum))
+    
+    return random_move(piles)
+
+def random_move(piles):
+    non_empty_piles = [i for i, pile in enumerate(piles) if pile > 0]
+    pile = random.choice(non_empty_piles)
+    remove = random.randint(1, min(10, piles[pile]))
+    return pile, remove
+
+
+def print_piles(piles):
+    for pile, counter in enumerate(piles):
+        print(f"Pile {pile + 1}: {'🪙' * counter} ")
+        #Made with help from ChatGPT and my dad
+
+#Main function
+def main():
+    player1_name = input("Player 1, Enter your name: ")
+    player2_name = input("Player 2, Enter your name: ")
+    game_mode = input("Do you want to play PvP or PvAI?").lower()
+
+    #Choose which player goes first
+
+    game_player = ""
+    current_player = input("Who will go first? 1 or 2: ")
+
+    while current_player not in ["1","2"]:
+        current_player  = input("Who will go first? 1 or 2: ")
+
+    ai_player = player2_name if current_player == "1" else player1_name
+
+    game_player = player1_name if current_player == "1" else player2_name
+    time.sleep(0.5)
+    print("The counters in each pile are:", game_piles)
+    time.sleep(0.5)
+    print_piles(game_piles)
+
+    while sum(game_piles) > 0:
+        time.sleep(0.5)
+        game_pile = int(input(f"Player {game_player}, choose a pile from 1 to 3: ")) - 1
+        game_count = int(input("How many counters to remove: "))
+#Can take from empty piles
+        if game_pile < 3 and 0 < game_count <= game_piles[game_pile]:
+            game_piles[game_pile] -= game_count
+            time.sleep(0.5)
+            print("New piles:", game_piles)
+            time.sleep(0.5)
+            print_piles(game_piles)
+        else:
+            time.sleep(0.5)
+            print("Error: Input a valid answer")
+            continue
+
+        if sum(game_piles) == 0:
+            time.sleep(0.5)
+            print(game_player, "took the last coin. Player", game_player ,"loses.")
+            break
+
+        elif sum(game_piles) == 1:
+            lose_player = player1_name if game_player == player2_name else player2_name
+            time.sleep(0.5)
+            if game_mode == "pvp":
+                print(lose_player, "is forced to take the last coin.", lose_player, "loses.")
+                break
+            elif game_mode == "pvai":
+                print(f"AI {ai_player} is forced to take the last coin. {ai_player} loses.")
+                break
+
+        if game_mode == "pvai":
+            pile, remove = ai_move(game_piles)
+            time.sleep(1.5)
+            print(f"AI {ai_player} chooses to remove {remove} '🪙's from pile {pile + 1 }")
+            game_piles[pile] -= remove
+            time.sleep(0.5)
+            print("New piles:", game_piles)
+            time.sleep(0.5)
+            print_piles(game_piles)
+
+            if sum(game_piles) == 0:
+                time.sleep(0.5)
+                print(f"AI {ai_player} took the last coin and loses.")
+                break
+
+            elif sum(game_piles) == 1:
+                lose_player = player1_name if game_player == player2_name else player2_name
+                time.sleep(0.5)
+                if game_mode == "pvp":
+                    print(lose_player, "is forced to take the last coin.", lose_player, "loses.")
+                    break
+                elif game_mode == "pvai":
+                    print(f"{game_player} is forced to take the last coin. {game_player} loses.")
+                    break
+
+
+        if game_mode == "pvp":
+            game_player = player1_name if game_player == player2_name else player2_name
+
+main()
