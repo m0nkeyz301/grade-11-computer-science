@@ -1,0 +1,30 @@
+clothes_rack = []
+clothes_rack.append("item1") #Append adds items to the end of a list
+clothes_rack.append("awdasd")
+clothes_rack.append("kl")
+clothes_rack.append("1234")
+clothes_rack.append("hi") #You create a list in python by using square brackets and adding items to it
+print(clothes_rack)
+print(clothes_rack[1:3]) #Slicing is when you return a range of items in a list by specifying the range.
+print(clothes_rack[1:4]) #The number are the starting and ending range
+clothes_rack.extend(["t-shirt","shoes","cap"]) #Extend adds item from one list to another
+print(clothes_rack)
+clothes_rack.insert(4,"gloves") #Insert adds items to a list at a specified index
+print(clothes_rack)
+clothes_rack.remove("shoes") #When i used remove, it removes the specified item
+print(clothes_rack)
+del clothes_rack[5] #del removes the item at the specified index
+print(clothes_rack)
+last_item = clothes_rack.pop() #similar to del, pop removes the item at a specified index. If there is no specified index, it removes the last item
+print(last_item)
+if "dress" in clothes_rack: # "in" means that it looks for the specified item "in" the specified list
+    print("I have found my dress")
+else:
+    print("I can't find my dress")
+print(clothes_rack.index("gloves")) #The index in a list is the position of an item
+clothes_rack.sort() #"sort" sorts the list in ascending order
+print(clothes_rack)
+clothes_rack.reverse() #"reverse" sorts the list in descending order
+print(clothes_rack)
+for x in clothes_rack: #The loop moves through the list until it reaches the end of it
+    print(x) #in this loop, x is a variable representing the items inside the list, and each time the loop runs it print a single item from the list in order
