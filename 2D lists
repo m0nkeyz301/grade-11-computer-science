@@ -1,0 +1,31 @@
+shoe_rack =[]
+shoe_rack.append(["trainers","sandals"])
+shoe_rack.append(["brown shoes","sneakers"])
+shoe_rack.append(["red pumps","soccer shoes"]) # You create 2D lists by using square brackets inside square brackets
+print(shoe_rack) # You add items by using append or other methods like regular lists
+print(len(shoe_rack)) # It returns the length of the list
+row=shoe_rack[0] # It returns the length of the selected row
+print(len(row))
+shoe_rack.insert(1,["ballet shoes","red high heels"]) # Append adds items to the end of a list, while insert adds items at a selected build
+print(shoe_rack)
+shoe_rack=shoe_rack[0:2] # Slicing returns the range of characters, meaning you print the items between index 0 and 2
+print(shoe_rack)
+shoe_rack=shoe_rack[-2] # -1 prints the last element in the list. -2 prints the second last item
+print(shoe_rack)
+shoe_rack=shoe_rack[:2] # prints the list until the items in the second index
+shoe_rack=shoe_rack[0:] # prints ever item from index 0 until the end
+print(shoe_rack)
+shoe_rack.pop(1) # the items in the 1 index was removed
+print(shoe_rack)
+shoe_rack.remove(["ballet shoes","red high heels"]) # nothing was removed because the items in the first index were already removed
+print(shoe_rack)
+shoe_rack.append(["trainers","sandals"])
+shoe_rack.append(["brown shoes","sneakers"])
+shoe_rack.append(["red pumps","soccor shoes"])
+shoe_rack=shoe_rack[0:1]+shoe_rack[-1] # takes the items from the 0 and 1 index and the item in the last index
+print(print)
+shoe_rack = [["brown shoes","sneakers","black high heels"],["blue converse","sandals","ballet shoes"],["red pumps","soccor shoes","red high heels"]]
+shoe_rack.sort() # sort sorts items ascending in alphabetical order
+print(shoe_rack)
+shoe_rack.reverse() #reverse sorts items descending in alphabetical order
+print(shoe_rack)
