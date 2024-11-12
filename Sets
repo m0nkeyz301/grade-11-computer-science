@@ -1,0 +1,15 @@
+colors = {"red","green","blue","yellow"}
+print(colors)
+
+colors.add("purple")
+colors.remove("green")
+print(colors)
+
+primary_colors = {"red","blue","yellow"}
+print(colors.difference(primary_colors))
+print(colors.intersection(primary_colors))
+
+if "orange" in colors:
+    print("There is orange")
+else:
+    print("There is no orange")
