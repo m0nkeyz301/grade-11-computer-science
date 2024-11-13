@@ -1,0 +1,15 @@
+people = {"Ivan":"red","Kabi":"blue","Michelle":"green"}
+
+print(people)
+
+people["pranushan"] = "orange"
+print(people)
+
+people["Kabi"] = "purple"
+print(people)
+del people["Ivan"]
+print(people)
+if "Michelle" in people:
+    print("Michelle is here")
+else:
+    print("Michelle is not here")
