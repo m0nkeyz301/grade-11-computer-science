@@ -1,0 +1,113 @@
+import csv
+
+
+def printMenu(): 
+    print('''
+          Customer and Sales System\n
+          1. Enter Customer Information\n
+          2. Generate Customer data file\n
+          3. Report on total Sales (Not done in this part)\n
+          4. Check for fraud in sales data (Not done in this part)\n
+          5. Enter credit card number\n
+          9. Quit\n
+          Enter menu option (1-9)
+          ''')
+
+def enterCustomerInfo(): #Pranushan
+    name = input("Please enter your name (first,last): ")
+    age = input("Please enter your age: ")
+    dob = input("Please enter your date of birth: ")
+    city = input("Please enter your city: ")
+    credit_card_number = input("Please enter your credit card: ")
+    postal_code = input("Please enter your Postal Code:")
+    return name, age , dob , city , postal_code, credit_card_number
+
+        
+def load_postal_codes(filename):
+    valid_prefixes = set() 
+    with open(filename, 'r') as file: 
+        reader = csv.reader(file, delimiter='|')
+        for row in reader: 
+            if row: 
+                valid_prefixes.add(row[0][:3]) 
+    return valid_prefixes
+def validate_postal_code(postal_code, valid_prefixes):
+    if len(postal_code) < 3: 
+        return False
+    return postal_code[:3].upper() in valid_prefixes
+
+
+valid_prefixes = load_postal_codes('postal_codes.csv') 
+
+
+
+def validateCreditCard(credit_card_number): #Sam
+    ccn = credit_card_number
+    digits = [int(d) for d in ccn]
+    sum_odd = sum(digits[-1::-2])
+    sum_even = 0
+
+    for digit in digits[-2::-2]:
+        doubled = digit *2
+        sum_even += doubled if doubled <10 else doubled -9
+    luhn_sum = sum_odd + sum_even
+    if luhn_sum % 10 == 0:
+        print("Credit card is valid")
+    else:
+        print("Credit card is not valid")
+
+
+
+def generateCustomerDataFile(name, age, dob, city, postal_code, credit_card_number):  # Sam
+    with open("user_info.csv", "a", newline="") as file:
+        writer = csv.writer(file)
+        
+        file.seek(0, 2)
+        if file.tell() == 0: 
+            field = ["name", "age", "dob", "city", "postal code", "credit card"]
+            writer.writerow(field)
+        
+        writer.writerow([name, age, dob, city, postal_code, credit_card_number])
+
+    
+####################################################################
+#       ADDITIONAL METHODS MAY BE ADDED BELOW IF NECESSARY         #
+####################################################################
+
+
+
+
+####################################################################
+#                            MAIN PROGRAM                          #
+#           DO NOT EDIT ANY CODE EXCEPT WHERE INDICATED            #
+####################################################################
+
+# Do not edit any of these variables
+userInput = ""
+enterCustomerOption = "1"
+generateCustomerOption = "2"
+exitCondition = "9"
+
+valid_prefixes = load_postal_codes('postal_codes.csv')  
+
+while userInput != exitCondition: 
+    printMenu()  
+    userInput = input()  
+
+    if userInput == enterCustomerOption:
+        name, age, dob, city, postal_code, credit_card_number = enterCustomerInfo()  
+        
+        if validate_postal_code(postal_code, valid_prefixes):  
+            print("Valid postal code")
+        else:
+            print("Invalid postal code")  
+
+        validateCreditCard(credit_card_number) 
+
+    elif userInput == generateCustomerOption:
+        generateCustomerDataFile(name, age, dob, city, postal_code, credit_card_number)
+
+    else:
+        print("Please type in a valid option (A number from 1-9)") 
+
+print("Program Terminated") 
