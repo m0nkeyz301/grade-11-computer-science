@@ -1,0 +1,588 @@
+import pygame
+import random
+from pygame.font import *
+from pygame.sprite import *
+
+# Initialize Pygame
+pygame.init()
+pygame.mixer.init()
+pygame.mixer.music.load(r'C:\Users\Samuel\python1\UEFA Champions League Anthem.mp3')
+pygame.mixer.music.play(-1)
+# Set up the display
+WIDTH= 1250
+HEIGHT = 720
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Tiny Soccer - Level 1")
+level = 1
+# Colors
+GREEN = (0, 128, 0)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+ORANGE = (237,163,14)
+GOAL_COLOR = (255, 255, 0)  # Yellow color for the goal area
+BLUE_BOUNDARY_COLOR = (0, 0, 255)  # Blue color for the boundary
+font = pygame.font.SysFont('Times New Roman', 30)
+score = 0
+kick_sound = pygame.mixer.Sound(r'C:\Users\Samuel\python1\kicking-football-sound-effect-fussballschuss-gerausch-ball-kick-sounds-single_gX5Wy3Jc.mp3')
+save_sound = pygame.mixer.Sound(r'C:\Users\Samuel\python1\goalie-save-with-glove-catching-ball-version-1_PL6wwHpV.mp3')
+score_sound = pygame.mixer.Sound(r"C:\Users\Samuel\python1\REFEREE WHISTLE SOUND EFFECT.mp3") 
+# Load the background image
+background_image = pygame.image.load(r"C:\Users\Samuel\python1\Background.png")
+
+background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))  # Scale it to fit the screen
+# Start time should be initialized only once at the beginning of the game
+
+
+# Start the timer only when the level/game starts
+start_time = pygame.time.get_ticks()  # Initialize start time
+countdown_start = 30  # Countdown duration in seconds
+
+def draw_timer():
+    """Display the remaining time on the screen and handle countdown logic."""
+    if start_time is None:  # Make sure start_time is initialized
+        return  # If not, exit the function
+
+    # Calculate elapsed time in seconds
+    elapsed_time = (pygame.time.get_ticks() - start_time) // 1000
+
+    # Calculate remaining time
+    remaining_time = countdown_start - elapsed_time
+
+    # Check if time is up
+    if remaining_time <= 0:
+        remaining_time = 0  # Prevent negative display
+        player.game_over = True  # You might want to call a function to end the level here
+
+    # Format time as MM:SS
+    minutes = remaining_time // 60
+    seconds = remaining_time % 60
+    timer_text = f"Time: {minutes:02}:{seconds:02}"
+
+    # Render the timer text
+    timer_surface = font.render(timer_text, True, WHITE)
+    screen.blit(timer_surface, (10, 10))  # Position: top-left corner
+        
+# Player class
+
+def show_loading_screen(image_path, display_time):
+    """Display a loading screen with an image for a given time."""
+    try:
+        # Load and scale the loading image
+        loading_image = pygame.image.load(image_path)
+        loading_image = pygame.transform.scale(loading_image, (WIDTH, HEIGHT))
+        
+        # Display the image
+        screen.blit(loading_image, (0, 0))
+        pygame.display.flip()  # Update the display
+
+        # Wait for the specified duration
+        pygame.time.delay(display_time)
+    except pygame.error as e:
+        print(f"Error loading image: {e}")
+        print("Please check the path and ensure the file exists.")
+
+# Main program
+if __name__ == "__main__":
+    start_time = pygame.time.get_ticks()  # Initialize start time
+    # Initialize Pygame
+    pygame.init()
+
+    # Set up display dimensions
+    WIDTH = 1250
+    HEIGHT = 720
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Loading Screen Example")
+
+    # Path to the loading image
+    loading_image_path = r"C:\Users\Samuel\python1\DALL·E 2025-01-09 15.19.26 - A dynamic loading screen for a soccer game titled 'Spotlight Striker.' The background features a vibrant soccer stadium under bright floodlights, with.webp"
+
+    # Show the loading screen for 3 seconds (3000 milliseconds)
+    show_loading_screen(loading_image_path, 3000)
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y, image_path):
+        super().__init__()
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (35, 35))  # Optional: Resize image to fit your sprite
+        self.rect = self.image.get_rect(center=(x, y))
+        self.speed = 5
+        self.direction = pygame.Vector2(0, 0)  # Store direction for shooting
+        self.game_over = False  # Game over flag for player
+
+    def update(self):
+        if not self.game_over:
+            keys = pygame.key.get_pressed()
+            dx, dy = 0, 0
+            if keys[pygame.K_a]:
+                dx = -self.speed  # 'A' for left
+            if keys[pygame.K_d]:
+                dx = self.speed  # 'D' for right
+            if keys[pygame.K_w]:
+                dy = -self.speed  # 'W' for up
+            if keys[pygame.K_s]:
+                dy = self.speed  # 'S' for down
+
+            self.rect.x += dx
+            self.rect.y += dy
+
+            # Update direction for shooting purposes
+            self.direction = pygame.Vector2(dx, dy)
+# Keep player within screen bounds (with a border)
+            self.rect.clamp_ip(pygame.Rect(50, 225, WIDTH - 100, HEIGHT - 250))  # Adjusted player boundaries
+    def reset(self):
+        self.rect.center = (WIDTH // 2, HEIGHT // 2 + 400)  # Reset player to starting position
+
+# Ball class
+class Ball(pygame.sprite.Sprite):
+    def __init__(self, x, y, image_path):
+        super().__init__()
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (16, 16))  # Optional: Resize image to fit your ball size
+        self.rect = self.image.get_rect(center=(x, y))
+        self.velocity = pygame.Vector2(0, 0)
+        self.stuck_to_player = False  # Initially, the ball is not stuck to the player
+        # self.goal = goal  # Store the goal object for collision detection
+
+
+    def update(self, player, goal_rect, left_rect, right_rect,cone1,cone2):
+        if self.stuck_to_player:
+            # Stick to the player and follow them
+            self.rect.center = (player.rect.centerx, player.rect.centery - 25)
+        else:
+            # Apply velocity if not stuck
+            self.rect.x += self.velocity.x
+            self.rect.y += self.velocity.y
+
+            # Decrease friction more slowly to extend the deceleration time
+            self.velocity.x *= 0.99  # Slow down the ball more gradually (smaller factor)
+            self.velocity.y *= 0.99  # Same for vertical velocity
+
+        # Define the individual boundary for the ball
+        player_area_top = 45  # Adjusted top of the player's area for 5px higher boundary
+        player_area_bottom = HEIGHT - 250  # Bottom of the player area
+
+        # Restrict ball vertical position to 100px above the player's allowed range
+        if self.rect.top < player_area_top - 100:
+            self.rect.top = player_area_top - 100  # Allow the ball to go 100px above the player's area
+            self.velocity.y = 0  # Stop vertical movement
+        # Extend the boundary 240 pixels further downward
+        if self.rect.bottom > player_area_bottom + 240:
+            self.rect.bottom = player_area_bottom + 240  # Allow the ball to go 240px further down
+            self.velocity.y = 0  # Stop vertical movement
+
+        # Prevent the ball from going above the goal area
+        if self.rect.top < goal_rect.top:
+            self.rect.top = goal_rect.top  # Ball cannot go above the goal area
+            self.velocity.y = 0  # Stop vertical movement
+
+        # Check for collision with the left or right boundary
+        if self.rect.colliderect(left_rect) or self.rect.colliderect(right_rect):
+            if self.rect.colliderect(left_rect):
+                self.rect.left = left_rect.right  # Prevent ball from passing through the left boundary
+            if self.rect.colliderect(right_rect):
+                self.rect.right = right_rect.left  # Prevent ball from passing through the right boundary
+            self.velocity.x = 0  # Stop horizontal movement when hitting the boundaries
+        # Check for collision with the cones
+        for cone in [cone1,cone2]:
+            if self.rect.colliderect(cone.rect):
+                if abs(self.rect.right - cone.rect.left) < 10 or abs(self.rect.left - cone.rect.right) < 10:
+                    self.velocity.x *= -1
+                if abs(self.rect.bottom - cone.rect.top) < 10 or abs(self.rect.top - cone.rect.bottom) < 10:
+                    self.velocity.y *= -1
+        # Check if the ball has entered the goal area
+        if self.rect.colliderect(goal_rect):
+            return True  # Ball has entered the goal, return True
+
+        # Check for collision with the vertical screen sides
+        if self.rect.left <= 0 or self.rect.right >= WIDTH:
+            self.velocity.x *= -1  # Reverse the horizontal velocity to make it bounce
+
+        return False
+
+    def stick_to_player(self, player):
+        if self.rect.colliderect(player.rect) and not self.stuck_to_player:
+            self.stuck_to_player = True  # Stick the ball to the player
+
+    def shoot(self, mouse_pos, player):
+        # Shoot the ball when clicked, and only if it's stuck to the player
+        if self.stuck_to_player:
+            kick_sound.play()
+            self.stuck_to_player = False  # Ball is no longer stuck to the player
+            # Calculate direction from player to mouse
+            player_center = pygame.Vector2(player.rect.centerx, player.rect.centery)
+            direction = pygame.Vector2(mouse_pos[0], mouse_pos[1]) - player_center
+            # Normalize the direction
+            if direction.length() != 0:
+                direction.normalize_ip()  # Normalize to make sure it has unit length
+
+            self.velocity = direction * 15  # Set velocity for the ball
+
+    def reset(self):
+        self.rect.center = (WIDTH // 2, HEIGHT // 2 +300)  # Reset to starting position
+        self.velocity = pygame.Vector2(0, 0)
+        self.stuck_to_player = False  # Ball is reset and not stuck to the player
+
+
+class GoalieBox(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((500, 300))
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect(center=(WIDTH // 2, 150))
+
+
+class red_square(pygame.sprite.Sprite):
+    def __init__(self, human, goalie_box, ball, image_path):
+        super().__init__()
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (50, 50))  # Optional: Resize image to fit your ball size
+        self.human = human
+        self.goal_box = goalie_box
+        self.ball = ball  # Add ball as a parameter
+        self.rect = self.image.get_rect(center=(WIDTH // 2, 260))
+        for i in range (level):
+            self.initial_speed = 3 + i*2
+            self.high_speed = 6 + i*2
+        self.speed = self.initial_speed
+        self.last_speedup_time_goalie = pygame.time.get_ticks()
+        self.speedup_time = 1000  # Speed-up lasts for 1 second
+        if level == 1:
+            self.speedup_interval = 10000  # Speed-up interval: every 10 seconds
+        elif level == 2:
+            self.speedup_interval = 7000  # Speed-up interval: every 8 seconds
+        elif level == 3:
+            self.speedup_interval = 4000
+        elif level >= 4:
+            self.speedup_interval = 2000
+        self.is_high_speed = False
+        self.speedup_end = 0
+        self.waiting = True
+        self.start_time = pygame.time.get_ticks()
+
+    def update(self): 
+        current_time = pygame.time.get_ticks()
+
+        if self.waiting and current_time - self.start_time >= 1000:
+            self.waiting = False  # Start moving after 1 second
+
+        if not self.waiting:
+            speed = self.speed  # Use current speed
+
+            # Move towards player or ball
+            target = self.human if self.ball.stuck_to_player else self.ball
+
+            # Goalie movement towards the target
+            if self.rect.x < target.rect.x:
+                self.rect.x += speed
+            elif self.rect.x > target.rect.x:
+                self.rect.x -= speed
+            if self.rect.y < target.rect.y:
+                self.rect.y += speed
+            elif self.rect.y > target.rect.y:
+                self.rect.y -= speed
+
+            # Prevent the goalie from going out of the goal box boundaries
+            if self.rect.left < blue_boundary_rect.left:
+                self.rect.left = blue_boundary_rect.left
+            if self.rect.right > blue_boundary_rect.right:
+                self.rect.right = blue_boundary_rect.right
+            if self.rect.top < blue_boundary_rect.top:
+                self.rect.top = blue_boundary_rect.top
+            if self.rect.bottom > blue_boundary_rect.bottom:
+                self.rect.bottom = blue_boundary_rect.bottom
+
+            # Check for collisions with the player or the ball
+            if self.rect.colliderect(self.human.rect):
+                print("Goalie collision with player detected!")
+                self.human.game_over = True
+
+            if self.rect.colliderect(self.ball.rect):
+                print("Goalie collision with ball detected!")
+                self.human.game_over = True
+
+        # Handle speed-up logic based on interval
+        if current_time - self.last_speedup_time_goalie >= self.speedup_interval:
+            if random.randint(1, 2) == 2:
+                print("Speed-up triggered!")  # Debugging: Print when speed-up is triggered
+                self.is_high_speed = True
+                self.speed = self.high_speed
+                self.speedup_end = current_time + self.speedup_time
+            else:
+                print("No speed-up this time.")  # Debugging: Print when no speed-up occurs
+
+            self.last_speedup_time_goalie = current_time
+
+        # Reset speed when the high-speed period ends
+        if self.is_high_speed and current_time >= self.speedup_end:
+            print("Speed-up duration ended, resetting speed.")  # Debugging: Log when speed-up ends
+            self.is_high_speed = False
+            self.speed = self.initial_speed
+
+    def reset(self):
+        self.rect.center = (WIDTH // 2, 260)
+        self.speed = self.initial_speed
+        self.is_high_speed = False
+        self.waiting = True
+        self.start_time = pygame.time.get_ticks()
+
+class DefenderObstacle(pygame.sprite.Sprite):
+    def __init__(self,human,image_path):
+        self.human = human
+        super().__init__()
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.image.get_rect(center=(100,450))
+        self.direction = 1
+
+    def update(self):
+        self.rect.x += 5*self.direction
+        if self.rect.left <= 0 or self.rect.right >= WIDTH:
+            self.direction *= -1
+        if self.rect.colliderect(self.human.rect):
+            print("Defender collision with purple square detected!")
+    def reset(self):
+        self.rect.center = (100,450)
+        self.direction = 1
+
+class DefenderObstacle2(pygame.sprite.Sprite):
+    def __init__(self,human,image_path):
+        self.human = human
+        super().__init__()
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.image.get_rect(center=(100,600))
+        self.direction = 1
+        self.waiting = True
+        self.start_time = pygame.time.get_ticks()
+        self.should_spawn = False
+
+    def update(self):
+        if not self.should_spawn:
+            return
+        current_time = pygame.time.get_ticks()
+        if self.waiting and current_time - self.start_time >= 1000:
+            self.waiting = False
+        
+        if not self.waiting:
+            self.rect.x += 4*self.direction
+            if self.rect.left <= 0 or self.rect.right >= WIDTH:
+                self.direction *= -1
+            if self.rect.colliderect(self.human.rect):
+                print("Defender2 collision with purple square detected!")
+    def reset(self):
+        self.rect.center = (100,600)
+        self.direction = 1
+        self.waiting = True
+        self.start_time = pygame.time.get_ticks()
+        self.should_spawn = random.choice([True, False])
+
+class ConeObstacle(pygame.sprite.Sprite):
+    def __init__(self,human,image_path):
+        self.human = human
+        super().__init__()
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        randX = random.randint(0,WIDTH)
+        randY = random.randint(0,HEIGHT) 
+        self.randomX = randX
+        self.randomY = randY
+        self.rect = self.image.get_rect(center=(self.randomX,self.randomY))
+    def update(self):     
+        if self.rect.colliderect(self.human.rect):
+            print("Cone collision with purple square detected!")
+    def reset(self):
+        randX = random.randint(0,WIDTH)
+        randY = random.randint(0,HEIGHT) 
+        self.randomX = randX
+        self.randomY = randY
+        self.rect = self.image.get_rect(center=(self.randomX,self.randomY))
+
+class ConeObstacle2(pygame.sprite.Sprite):
+    def __init__(self,human,image_path):
+        self.human = human
+        super().__init__()
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        randX = random.randint(0,WIDTH)
+        randY = random.randint(0,HEIGHT) 
+        self.randomX = randX
+        self.randomY = randY
+        self.rect = self.image.get_rect(center=(self.randomX,self.randomY))
+    def update(self):     
+        if self.rect.colliderect(self.human.rect):
+            print("Cone collision with purple square detected!")
+    def reset(self):
+        randX = random.randint(0,WIDTH)
+        randY = random.randint(0,HEIGHT) 
+        self.randomX = randX
+        self.randomY = randY
+        self.rect = self.image.get_rect(center=(self.randomX,self.randomY))
+
+# Initial player and ball positions
+player_start_x = WIDTH // 2  # Move player 100 pixels to the right of the center
+player_start_y = HEIGHT // 2 + 400  # Position player slightly below the center
+ball_start_x = WIDTH // 2  # Move the ball 120 pixels to the right of the center
+ball_start_y = HEIGHT // 2 + 300  # Position the ball a little below the player
+# Create sprites
+goalie_box = GoalieBox()
+player = Player(player_start_x, player_start_y,r'C:\Users\Samuel\python1\Shooting player.png')
+ball = Ball(ball_start_x, ball_start_y,r'C:\Users\Samuel\python1\Soccer ball.png')
+
+# Goal dimensions and position (same as before)
+GOAL_WIDTH = 190
+GOAL_HEIGHT = 75
+goal_rect = pygame.Rect(WIDTH // 2 - GOAL_WIDTH // 2, HEIGHT // 2 - GOAL_HEIGHT // 2 - 100, GOAL_WIDTH, GOAL_HEIGHT)
+
+# Left and Right boundary rectangles (green)
+boundary_width = 50
+left_rect = pygame.Rect(0, goal_rect.top, goal_rect.left, goal_rect.height)
+right_rect = pygame.Rect(goal_rect.right, goal_rect.top, WIDTH - goal_rect.right, goal_rect.height)
+# timerr = timer()
+# Blue boundary dimensions (widened by 250 pixels)
+blue_boundary_height = 150  # Height of the blue boundary (can adjust as needed)
+blue_boundary_top = goal_rect.bottom  # Position it directly below the goal area
+blue_boundary_width = WIDTH  # Make the boundary 250px wider
+blue_boundary_rect = pygame.Rect(500 // 2- 250, blue_boundary_top, blue_boundary_width, blue_boundary_height)  # Shifted 100px to the right
+blue_color = (0, 0, 255)
+# Goalkeeper initialization
+goalie = red_square(player, goalie_box, ball, r"C:\Users\Samuel\python1\Goalie.webp")
+cone1 = ConeObstacle(player,r"C:\Users\Samuel\python1\Cone.png")
+cone2 = ConeObstacle2(player,r"C:\Users\Samuel\python1\Cone.png")
+defender1 = DefenderObstacle(player, r"C:\Users\Samuel\python1\Defender.png")
+defender2 = DefenderObstacle2(player, r"C:\Users\Samuel\python1\Defender.png")
+# Add everything to sprite groups
+# Add everything to sprite groups
+all_sprites = pygame.sprite.Group()
+all_sprites.add(player, ball, goalie,defender1)  # Add goalie_box to the group
+
+chance_sprites = pygame.sprite.Group()
+chance_sprites.add(cone1,cone1,defender2)
+
+# Game loop
+running = True
+clock = pygame.time.Clock()
+level = 1
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Left mouse button click
+                mouse_pos = pygame.mouse.get_pos()
+                ball.shoot(mouse_pos, player)  # Shoot the ball if stuck to the player
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and player.game_over:
+                # Reset the game if spacebar is pressed and the game is over
+                player = Player(WIDTH // 2, HEIGHT // 2+400,r'C:\Users\Samuel\python1\Shooting player.png')
+                ball = Ball(WIDTH // 2, HEIGHT // 2 + 300,r'C:\Users\Samuel\python1\Soccer ball.png')
+                goalie = red_square(player, goalie_box, ball,r"C:\Users\Samuel\python1\Goalie.webp")
+                all_sprites = pygame.sprite.Group()
+                all_sprites.add(player, ball, goalie,defender1)  # Add goalie_box to the group
+                chance_sprites.add(cone1,cone2,defender2)
+                score = 0
+                defender1.reset()
+                defender2.reset()
+                cone1.reset()
+                cone2.reset()
+                player.game_over = False  # Reset game over flag
+                start_time = pygame.time.get_ticks()  # Initialize start time
+            elif event.key == pygame.K_LSHIFT and player.game_over:
+                print(f"Level {level}!")
+                background_image = pygame.image.load(r"C:\Users\Samuel\python1\Background.png")
+                background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))  # Scale to fit
+                level += 1
+                player = Player(WIDTH // 2, HEIGHT // 2+400,r'C:\Users\Samuel\python1\Shooting player.png')
+                ball = Ball(WIDTH // 2, HEIGHT // 2 + 300, r'C:\Users\Samuel\python1\Soccer ball.png')
+                goalie = red_square(player, goalie_box, ball,r"C:\Users\Samuel\python1\Goalie.webp")
+                all_sprites = pygame.sprite.Group()
+                all_sprites.add(player, ball, goalie,defender1)  # Add goalie_box to the group
+                chance_sprites.add(cone1,cone2,defender2)
+                score = 0
+                defender1.reset()
+                defender2.reset()
+                cone1.reset()
+                cone2.reset()
+                 # Initialize start time
+                player.game_over = False  # Reset game over flag
+                start_time = pygame.time.get_ticks() 
+
+    if level == 2:
+        background_image = pygame.image.load(r"C:\Users\Samuel\python1\Background.png")
+        background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))  # Scale to fit
+    if level == 3:
+        background_image = pygame.image.load(r"C:\Users\Samuel\python1\Background.png")
+        background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))  # Scale to fit
+    # Update
+    if not player.game_over:
+        player.update()
+        ball.stick_to_player(player)  # Check if ball should stick to player
+
+        ball_reset = ball.update(player, goal_rect, left_rect, right_rect,cone1,cone2)  # Update ball's position and check for goal or reset
+        # if ball_reset:
+        #     score += 1
+        #     ball.reset()  # Reset ball after goal
+
+        # Check for collision with the GoalieBox
+        #if ball.rect.colliderect(goal_rect):
+        #if goal_rect.colliderect(ball.rect):
+        if goal_rect.colliderect(ball.rect):
+            score += 1  # Increase score when ball collides with GoalieBox
+            score_sound.play()
+            ball.reset()  # Reset ball after collision with GoalieBox
+
+        # Update the goalie
+        goalie.update()
+
+        if goalie.rect.colliderect(ball.rect):
+            print("Collision with goalie!")
+            save_sound.play()
+            player.game_over = True
+        defender1.update()
+        if defender1.rect.colliderect(player.rect) or defender1.rect.colliderect(ball.rect):
+            print("Defender collision with player detected!")
+            player.game_over = True
+        defender2.update()
+        if defender2.rect.colliderect(player.rect) or defender2.rect.colliderect(ball.rect):
+            print("Defender2 collision with player detected!")
+            player.game_over = True
+        cone1.update()
+        if cone1.rect.colliderect(player.rect):
+            print("Cone collision with player detected!")
+        cone2.update()
+        if cone2.rect.colliderect(player.rect):
+            print("Cone2 collision with player detected!")
+
+    # Draw everything
+    if player.game_over:
+        # Game Over screen with white background
+        screen.fill(WHITE)
+        game_over_text = font.render(f"Game Over! Press SPACE to Try Again or SHIFT to next level.", True, BLACK)
+        screen.blit(game_over_text, (WIDTH // 2 - 350, HEIGHT // 2 - 30))
+
+    else:
+        # Regular game screen
+        screen.blit(background_image, (0, 0))  # Display background first
+        all_sprites.draw(screen)
+        pygame.draw.rect(screen, blue_color, goal_rect)
+        #pygame.draw.rect(screen, blue_color, blue_boundary_rect)
+        # Draw score
+        score_text = font.render(f"Score: {score}", True, BLACK)
+        screen.blit(score_text, (WIDTH - 120, 10))
+        level_text = font.render(f"Level: {level}", True, BLACK)
+        screen.blit(level_text, (WIDTH - 120, 50))
+        
+        # Display "You Win" if the score reaches a certain threshold
+        if score >= 1:  # Example: Winning condition at score of 1
+            you_win_text = font.render(f"You Win! Score: {score}", True, BLACK)
+            screen.blit(you_win_text, (WIDTH // 2 - 60, HEIGHT // 2 - 60))
+            player.game_over = True
+    if defender2.should_spawn:
+        # print("Defender2 should spawn!")
+        chance_sprites.draw(screen)
+    # else:
+        # print("Defender2 should not spawn!")
+    draw_timer()
+    pygame.display.flip()
+    
+    clock.tick(60)
+
+pygame.quit()
